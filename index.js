@@ -1,8 +1,8 @@
-const app = require('express')();
-const PORT = 8080
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 8080
 
-app.get('/', (req, res)=>{
-    res.status(200).send()
-})
+app.use(express.json())
+app.use('/commissions', require('./commissions/routes'));
 
 app.listen(PORT, ()=>console.log(`Server running on https://localhost:${PORT}`));
