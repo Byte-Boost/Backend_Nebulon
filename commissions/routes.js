@@ -1,8 +1,10 @@
 const controller = require('./controller.js')
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
 
+router.post('/', controller.createCommission);
 router.get('/', controller.getCommissions);
-router.get('/error', controller.dummyFunction);
+router.get('/:id', controller.getCommissionById);
+router.put('/:id', controller.updateCommission);
+router.delete('/:id', controller.deleteCommission);
 
 module.exports = router;

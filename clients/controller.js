@@ -1,24 +1,24 @@
 class requestHandler{
     // POST
-    createCommission = (req, res)=>{
+    createClient = (req, res)=>{
         let { body } = req
         res.status(201).send()
     }
     // GET
-    getCommissions = (req, res)=>{
+    getClients = (req, res)=>{
         res.status(200).send()
     }
-    getCommissionById = (req, res)=>{
+    getClientById = (req, res)=>{
         let { params } = req
         res.status(200).send()
     }
     // PUT
-    updateCommission = (req, res)=>{
+    updateClient = (req, res)=>{
         let { params, body } = req
         res.status(200).send()
     }
     // DELETE
-    deleteCommission = (req, res)=>{
+    deleteClient = (req, res)=>{
         let { params } = req
         res.status(200).send()
     }
