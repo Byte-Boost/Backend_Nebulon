@@ -1,4 +1,4 @@
-const controller = require('./controller.js')
+const controller = require('../controllers/commissions.controller.js')
 const router = require('express').Router();
 
 router.post('/', controller.createCommission);
