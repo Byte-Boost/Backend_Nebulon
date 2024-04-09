@@ -36,10 +36,11 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'clientId',
       onDelete: 'CASCADE'
     })
-    Commission.belongsTo(models.Product, {
-      foreignKey: 'productId',
-      onDelete: 'CASCADE'
-    })
+    // Doesn't exists for now
+    // Commission.belongsTo(models.Product, {
+    //   foreignKey: 'productId',
+    //   onDelete: 'CASCADE'
+    // })
     Commission.belongsTo(models.Seller, {
       foreignKey: 'sellerId',
       onDelete: 'CASCADE'

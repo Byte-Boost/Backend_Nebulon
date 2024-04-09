@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     bonus: {
       type: DataTypes.FLOAT,
-      allowNull: false,
+      allowNull: true,
     },
   });
   Client.associate = function(models) {

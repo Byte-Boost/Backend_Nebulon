@@ -35,6 +35,17 @@ class requestHandler {
             res.status(400).send();
           });
   };
+  getSellerByCPF = (req, res) => {  
+    let { params } = req;
+    Seller.findAll({ where: { cpf: params.cpf } })
+      .then((sellers) => {
+        res.status(200).send(sellers);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+  }
   // PUT
   updateSeller = (req, res) => {
     let { params, body } = req;

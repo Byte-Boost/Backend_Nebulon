@@ -19,10 +19,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
   });
-  Product.associate = function(models) {
-    Product.hasMany(models.Commission, {
-      foreignKey: 'productId',
-    })
-  };
+  // Doesn't exists for now
+  // Product.associate = function(models) {
+  //   Product.hasMany(models.Commission, {
+  //     foreignKey: 'productId',
+  //   })
+  // };
   return Product;
 };
