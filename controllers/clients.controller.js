@@ -40,6 +40,20 @@ class requestHandler {
   // PUT
   updateClient = (req, res) => {
     let { params, body } = req;
+
+    Client.update({
+      name: body.name,
+      cpf: body.cpf,
+      segment: body.segment,
+      bonus: body.bonus}, {
+        where: {
+          id: params.id
+        },
+      }).catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+      
     res.status(200).send();
   };
   // DELETE

@@ -42,6 +42,22 @@ class requestHandler {
   // PUT
   updateCommission = (req, res) => {
     let { params, body } = req;
+
+    Commission.update({
+      date: body.date,
+      value: body.value,
+      paymentMethod: body.paymentMethod,
+      clientId: body.clientId,
+      productId: body.productId,
+      sellerId: body.sellerId}, {
+        where: {
+          id: params.id
+        },
+      }).catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+      
     res.status(200).send();
   };
   // DELETE

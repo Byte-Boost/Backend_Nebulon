@@ -38,6 +38,18 @@ class requestHandler {
   // PUT
   updateSeller = (req, res) => {
     let { params, body } = req;
+
+    Seller.update({
+      name: body.name,
+      cpf: body.cpf}, {
+        where: {
+          id: params.id
+        },
+      }).catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+
     res.status(200).send();
   };
   // DELETE

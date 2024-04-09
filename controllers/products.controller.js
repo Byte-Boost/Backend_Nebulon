@@ -39,6 +39,19 @@ class requestHandler {
   // PUT
   updateProduct = (req, res) => {
     let { params, body } = req;
+
+    Product.update({
+      name: body.name,
+      value: body.value,
+      bonus: body.bonus}, {
+        where: {
+          id: params.id
+        },
+      }).catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+
     res.status(200).send();
   };
   // DELETE
