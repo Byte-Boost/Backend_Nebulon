@@ -41,7 +41,7 @@ class requestHandler {
   };
   getClientByCPF = (req, res) => {  
     let { params } = req;
-    Client.findAll({ where: { cpf: params.cpf } })
+    Client.findAll({ where: { cnpj: params.cpf} })
       .then((clients) => {
         res.status(200).send(clients);
       })
