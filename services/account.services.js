@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-class userService {
+class accountService {
 
     getHashed = async (password) => {
         const salt = await bcrypt.genSalt()  //create a random salt that goes before the password, like eUsFhiYouPassword
@@ -25,4 +25,4 @@ class userService {
     }
 }
 
-module.exports = new userService();
+module.exports = new accountService();

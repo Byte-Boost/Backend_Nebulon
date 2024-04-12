@@ -1,17 +1,19 @@
-const { User } = require("../models");
-const service = require("../services/users.services.js");
+const { Seller } = require("../models/index.js");
+const service = require("../services/account.services.js");
 
 class requestHandler {
   // POST
-  registerUser = async (req, res) => {
+  registerSeller = async (req, res) => {
     let { body } = req;
 
-    var user = {
+    var seller = {
+      name: body.name,
+      cpf: body.cpf,
       username: body.username,
       password: await service.getHashed(body.password),
     };
 
-    User.create(user)
+    Seller.create(seller)
       .then(() => {
         res.status(201).send();
       })
@@ -20,10 +22,11 @@ class requestHandler {
         res.status(400).send();
       });
   };
-  loginUser = async (req, res) => {
+
+  loginSeller = async (req, res) => {
     let { body } = req;
 
-    const user = await User.findOne({ where: { username: body.username } });
+    const user = await Seller.findOne({ where: { username: body.username } });
     
     try {
       if (!user) throw new Error("User does not exist");
@@ -34,11 +37,11 @@ class requestHandler {
     }
 
   };
-  // DELETE
-  deleteUser = (req, res) => {
-    let { params } = req;
 
-    User.destroy({ where: { id: params.id } })
+  // DELETE
+  deleteSeller = (req, res) => {
+    let { params } = req;
+    Seller.destroy({ where: { id: params.id } })
       .then(res.status(200).send())
       .catch((err) => {
         console.log(err);

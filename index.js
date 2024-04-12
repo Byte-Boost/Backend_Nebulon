@@ -9,7 +9,7 @@ app.use(cors());
 
 app.use(express.json())
 
-app.use('/users', require('./routes/users.routes'));
+app.use('/account', require('./routes/account.routes'));
 
 app.use(authMiddleware);
 app.use('/commissions', require('./routes/commissions.routes'));
