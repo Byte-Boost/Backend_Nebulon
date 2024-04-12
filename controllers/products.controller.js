@@ -6,8 +6,9 @@ class requestHandler {
 
     Product.create({
       name: body.name,
-      value: body.value,
-      bonus: body.bonus,
+      description: body.description,
+      percentage: body.percentage,
+      status: body.status,
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
@@ -42,8 +43,9 @@ class requestHandler {
 
     Product.update({
       name: body.name,
-      value: body.value,
-      bonus: body.bonus}, {
+      description: body.description,
+      percentage: body.percentage,
+      status: body.status,}, {
         where: {
           id: params.id
         },

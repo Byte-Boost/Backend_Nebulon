@@ -13,6 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     cpf: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
     },
   });
   Seller.associate = function(models) {

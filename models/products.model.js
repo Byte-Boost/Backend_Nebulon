@@ -10,20 +10,23 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    value: {
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    percentage: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    bonus: {
-      type: DataTypes.FLOAT,
+    status: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   });
-  // Doesn't exists for now
-  // Product.associate = function(models) {
-  //   Product.hasMany(models.Commission, {
-  //     foreignKey: 'productId',
-  //   })
-  // };
+  Product.associate = function(models) {
+    Product.hasMany(models.Commission, {
+      foreignKey: 'productId',
+    })
+  };
   return Product;
 };

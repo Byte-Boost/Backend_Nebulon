@@ -5,10 +5,12 @@ class requestHandler {
     let { body } = req;
 
     Client.create({
-      name: body.name,
-      cpf: body.cpf,
+      tradingName: body.tradingName,
+      companyName: body.companyName,
+      cnpj: body.cnpj,
       segment: body.segment,
-      bonus: body.bonus,
+      contact: body.contact,
+      status: body.status,
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
@@ -53,10 +55,12 @@ class requestHandler {
     let { params, body } = req;
 
     Client.update({
-      name: body.name,
-      cpf: body.cpf,
+      tradingName: body.tradingName,
+      companyName: body.companyName,
+      cnpj: body.cnpj,
       segment: body.segment,
-      bonus: body.bonus}, {
+      contact: body.contact,
+      status: body.status,}, {
         where: {
           id: params.id
         },

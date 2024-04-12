@@ -8,21 +8,30 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       primaryKey: true,
     },
-    name: {
+    tradingName: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    cpf: {
+    companyName: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    cnpj: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
     segment: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    bonus: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
+    contact: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
   });
   Client.associate = function(models) {
