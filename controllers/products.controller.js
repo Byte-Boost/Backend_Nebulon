@@ -8,7 +8,7 @@ class requestHandler {
       name: body.name,
       description: body.description,
       percentage: body.percentage,
-      status: body.status,
+      status: 0,
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
@@ -37,6 +37,18 @@ class requestHandler {
             res.status(400).send();
           });
   };
+  getProductsWithClass = (req, res) => {
+    let { params } = req;
+    let status = params.class == "new" ? 0 : 1;
+    Product.findAll({ where: { status : status } })
+      .then((products) => {
+        res.status(200).send(products);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+  }
   // PUT
   updateProduct = (req, res) => {
     let { params, body } = req;

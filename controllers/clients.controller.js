@@ -49,7 +49,7 @@ class requestHandler {
         res.status(400).send();
       });
   }
-  getClientWithClasse = (req, res) => {
+  getClientsWithClass = (req, res) => {
     let { params } = req;
     let status = params.class == "new" ? 0 : 1;
     Client.findAll({ where: { status : status } })
