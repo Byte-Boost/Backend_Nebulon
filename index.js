@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 8080;
 const db = require('./models');
 const cors = require('cors');
 const authMiddleware = require('./middleware/auth.middleware');
+const admin = require('./services/admin.services');
 
 app.use(cors());
 
@@ -18,5 +19,7 @@ app.use('/clients', require('./routes/clients.routes'));
 app.use('/sellers', require('./routes/sellers.routes'));
 
 db.sequelize.sync().then(()=>{
+  // Create an admin user if it doesn't exist
+  admin.generateAdmin()
   app.listen(PORT, ()=>console.log(`Server running on https://localhost:${PORT}`));
 });
