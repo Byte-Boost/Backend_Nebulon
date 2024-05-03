@@ -11,6 +11,7 @@ class requestHandler {
       cpf: body.cpf,
       username: body.username,
       password: await service.getHashed(body.password),
+      admin: false,
     };
 
     Seller.create(seller)
