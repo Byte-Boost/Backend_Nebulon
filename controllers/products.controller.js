@@ -8,7 +8,7 @@ class requestHandler {
       name: body.name,
       description: body.description,
       percentage: body.percentage,
-      status: 0,
+      status: body.status || 0,
     }).catch((err) => {
       console.log(err);
       res.status(400).send();

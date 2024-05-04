@@ -1,4 +1,5 @@
-const { Commission } = require("../models");
+const { where } = require("sequelize");
+const { Commission, Client } = require("../models");
 class requestHandler {
   // POST
   createCommission = (req, res) => {
@@ -11,7 +12,17 @@ class requestHandler {
       clientId: body.clientId,
       productId: body.productId,
       sellerId: body.sellerId,
-    }).catch((err) => {
+    }).then(async ()=>{
+      await Client.update(
+        { status: 1},
+        {
+          where: {
+            id: body.clientId
+          }
+        }
+      )
+    })
+    .catch((err) => {
       console.log(err);
       res.status(400).send();
     });
