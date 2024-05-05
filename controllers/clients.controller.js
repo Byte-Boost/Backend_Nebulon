@@ -3,14 +3,13 @@ class requestHandler {
   // POST
   createClient = (req, res) => {
     let { body } = req;
-
     Client.create({
       tradingName: body.tradingName,
       companyName: body.companyName,
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
-      status: body.status,
+      status: 0,
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
@@ -50,6 +49,19 @@ class requestHandler {
         res.status(400).send();
       });
   }
+  getClientsWithClass = (req, res) => {
+    let { params } = req;
+    let status = params.class == "new" ? 0 : 1;
+    Client.findAll({ where: { status : status } })
+      .then((clients) => {
+        res.status(200).send(clients);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+  }
+
   // PUT
   updateClient = (req, res) => {
     let { params, body } = req;
