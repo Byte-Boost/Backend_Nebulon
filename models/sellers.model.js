@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
-      primaryKey: true,
+      unique: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      primaryKey: true,
     },
     username: {
       type: DataTypes.STRING,
@@ -31,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   });
   Seller.associate = function(models) {
     Seller.hasMany(models.Commission, {
-      foreignKey: 'sellerId',
+      foreignKey: 'sellerCPF',
     })
   };
   return Seller;

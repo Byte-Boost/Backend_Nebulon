@@ -9,9 +9,9 @@ class requestHandler {
       date: body.date,
       value: body.value,
       paymentMethod: body.paymentMethod,
-      clientId: body.clientId,
+      clientCNPJ: body.clientCNPJ,
       productId: body.productId,
-      sellerId: body.sellerId,
+      sellerCPF: body.sellerCPF,
     }).then(async ()=>{
       await Client.update(
         { status: 1},

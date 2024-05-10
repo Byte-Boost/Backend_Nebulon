@@ -30,17 +30,7 @@ class requestHandler {
   };
   getClientById = (req, res) => {
     let { params } = req;
-    Client.findByPk(params.id).then((clients) => {
-            res.status(200).send(clients);
-          })
-          .catch((err) => {
-            console.log(err);
-            res.status(400).send();
-          });
-  };
-  getClientByCNPJ = (req, res) => {  
-    let { params } = req;
-    Client.findAll({ where: { cnpj : params.cnpj} })
+    Client.findAll({ where: { id : params.id} })
       .then((clients) => {
         res.status(200).send(clients);
       })
@@ -48,6 +38,16 @@ class requestHandler {
         console.log(err);
         res.status(400).send();
       });
+  };
+  getClientByCNPJ = (req, res) => {  
+    let { params } = req;
+    Client.findByPk(params.cnpj).then((clients) => {
+            res.status(200).send(clients);
+          })
+          .catch((err) => {
+            console.log(err);
+            res.status(400).send();
+          });
   }
   getClientsWithClass = (req, res) => {
     let { params } = req;

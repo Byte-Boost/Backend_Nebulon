@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
-      primaryKey: true,
+      unique: true,
     },
     tradingName: {
       type: DataTypes.STRING,
@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      primaryKey: true,
     },
     segment: {
       type: DataTypes.STRING,
@@ -36,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
   });
   Client.associate = function(models) {
     Client.hasMany(models.Commission, {
-      foreignKey: 'clientId',
+      foreignKey: 'clientCNPJ',
     })
   };
   return Client;
