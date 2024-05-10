@@ -1,5 +1,5 @@
-const { where } = require("sequelize");
-const { Commission, Client } = require("../models");
+const { Op } = require('sequelize');
+const { Commission, Client, Product } = require("../models");
 class requestHandler {
   // POST
   createCommission = (req, res) => {
@@ -17,7 +17,7 @@ class requestHandler {
         { status: 1},
         {
           where: {
-            id: body.clientId
+            cnpj: body.clientCNPJ
           }
         }
       )
@@ -50,6 +50,88 @@ class requestHandler {
             res.status(400).send();
           });
   };
+  getCommissionsWithProduct = (req, res) => {
+    let { params } = req;
+    Commission.findAll({where: {productId: params.product_id}}).then((commissions) => {
+      res.status(200).send(commissions);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send();
+    });
+  };
+  getCommissionsWithProductClass = async (req, res) => {
+    let { params } = req;
+
+    let status = params.class == "new" ? 0 : 1;
+    Product.findAll({ where: { status : status } })
+      .then((products) => {
+        let ids = products.map(product => product.id);
+
+        Commission.findAll({where: {
+          productId: {
+            [Op.or]: ids,
+          },
+        },}).then((commissions) => {
+          res.status(200).send(commissions);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).send();
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+
+  };
+  getCommissionsWithClient = (req, res) => {
+    let { params } = req;
+    Commission.findAll({where: {clientCNPJ: params.client_cnpj}}).then((commissions) => {
+      res.status(200).send(commissions);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send();
+    });
+  }
+  getCommissionsWithClientClass = async (req, res) => {
+    let { params } = req;
+
+    let status = params.class == "new" ? 0 : 1;
+    Client.findAll({ where: { status : status } })
+      .then((clients) => {
+        let cnpjs = clients.map(client => client.cnpj);
+
+        Commission.findAll({where: {
+          clientCNPJ: {
+            [Op.or]: cnpjs,
+          },
+        },}).then((commissions) => {
+          res.status(200).send(commissions);
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).send();
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+
+  };
+  getCommissionsWithSeller = (req, res) => {
+    let { params } = req;
+    Commission.findAll({where: {sellerCPF: params.seller_cpf}}).then((commissions) => {
+      res.status(200).send(commissions);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(400).send();
+    });
+  }
   // PUT
   updateCommission = (req, res) => {
     let { params, body } = req;
