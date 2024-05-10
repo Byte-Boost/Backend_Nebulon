@@ -21,6 +21,16 @@ class requestHandler {
   getClients = (req, res) => {
     Client.findAll()
       .then((clients) => {
+        let { query } = req;
+        let queryStatus = query.status 
+        let segment = query.segment;
+        if (queryStatus) {
+          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+          clients = clients.filter(client => client.status == status);
+        }
+        if (segment) {
+          clients = clients.filter(client => client.segment == segment);
+        }
         res.status(200).send(clients);
       })
       .catch((err) => {
@@ -49,19 +59,6 @@ class requestHandler {
             res.status(400).send();
           });
   }
-  getClientsWithClass = (req, res) => {
-    let { params } = req;
-    let status = params.class == "new" ? 0 : 1;
-    Client.findAll({ where: { status : status } })
-      .then((clients) => {
-        res.status(200).send(clients);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-  }
-
   // PUT
   updateClient = (req, res) => {
     let { params, body } = req;

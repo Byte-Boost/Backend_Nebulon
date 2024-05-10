@@ -20,6 +20,12 @@ class requestHandler {
   getProducts = (req, res) => {
     Product.findAll()
       .then((products) => {
+        let { query } = req;
+        let queryStatus = query.status 
+        if (queryStatus) {
+          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+          products = products.filter(product => product.status == status);
+        }
         res.status(200).send(products);
       })
       .catch((err) => {
@@ -37,18 +43,6 @@ class requestHandler {
             res.status(400).send();
           });
   };
-  getProductsWithClass = (req, res) => {
-    let { params } = req;
-    let status = params.class == "new" ? 0 : 1;
-    Product.findAll({ where: { status : status } })
-      .then((products) => {
-        res.status(200).send(products);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-  }
   // PUT
   updateProduct = (req, res) => {
     let { params, body } = req;
