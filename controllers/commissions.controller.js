@@ -32,7 +32,40 @@ class requestHandler {
   // GET
   getCommissions = (req, res) => {
     Commission.findAll()
-      .then((commissions) => {
+      .then(async (commissions) => { 
+        let { query } = req;
+        let product = query.product_id;
+        let client = query.client_cnpj;
+        let seller = query.seller_cpf;
+        let productStatus = query.product_status;
+        let clientStatus = query.client_status;
+
+        if (product) {
+          commissions = commissions.filter(commission => commission.productId == product);
+        }
+        if (client) {
+          commissions = commissions.filter(commission => commission.clientCNPJ == client);
+        }
+        if (seller) {
+          commissions = commissions.filter(commission => commission.sellerCPF == seller);
+        }
+        if (productStatus) {
+          let status = productStatus == "new" ? 0 : 1;
+          await Product.findAll({ where: { status : status } })
+            .then(async (products) => {
+              let ids = products.map(product => product.id);
+              commissions = commissions.filter(commission => ids.includes(commission.productId));
+            })
+        }
+        if (clientStatus) {
+          let status = clientStatus == "new" ? 0 : 1;
+          await Client.findAll({ where: { status : status } })
+            .then(async (clients) => {
+              let cnpjs = clients.map(client => client.cnpj);
+              commissions = commissions.filter(commission => cnpjs.includes(commission.clientCNPJ));
+            })
+        }
+        
         res.status(200).send(commissions);
       })
       .catch((err) => {
@@ -50,88 +83,7 @@ class requestHandler {
             res.status(400).send();
           });
   };
-  getCommissionsWithProduct = (req, res) => {
-    let { params } = req;
-    Commission.findAll({where: {productId: params.product_id}}).then((commissions) => {
-      res.status(200).send(commissions);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send();
-    });
-  };
-  getCommissionsWithProductClass = async (req, res) => {
-    let { params } = req;
-
-    let status = params.class == "new" ? 0 : 1;
-    Product.findAll({ where: { status : status } })
-      .then((products) => {
-        let ids = products.map(product => product.id);
-
-        Commission.findAll({where: {
-          productId: {
-            [Op.or]: ids,
-          },
-        },}).then((commissions) => {
-          res.status(200).send(commissions);
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(400).send();
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-
-  };
-  getCommissionsWithClient = (req, res) => {
-    let { params } = req;
-    Commission.findAll({where: {clientCNPJ: params.client_cnpj}}).then((commissions) => {
-      res.status(200).send(commissions);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send();
-    });
-  }
-  getCommissionsWithClientClass = async (req, res) => {
-    let { params } = req;
-
-    let status = params.class == "new" ? 0 : 1;
-    Client.findAll({ where: { status : status } })
-      .then((clients) => {
-        let cnpjs = clients.map(client => client.cnpj);
-
-        Commission.findAll({where: {
-          clientCNPJ: {
-            [Op.or]: cnpjs,
-          },
-        },}).then((commissions) => {
-          res.status(200).send(commissions);
-        })
-        .catch((err) => {
-          console.log(err);
-          res.status(400).send();
-        });
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-
-  };
-  getCommissionsWithSeller = (req, res) => {
-    let { params } = req;
-    Commission.findAll({where: {sellerCPF: params.seller_cpf}}).then((commissions) => {
-      res.status(200).send(commissions);
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send();
-    });
-  }
+  
   // PUT
   updateCommission = (req, res) => {
     let { params, body } = req;
