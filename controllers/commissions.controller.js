@@ -39,6 +39,8 @@ class requestHandler {
         let seller = query.seller_cpf;
         let productStatus = query.product_status;
         let clientStatus = query.client_status;
+        let after = query.after;
+        let before = query.before;
 
         if (product) {
           commissions = commissions.filter(commission => commission.productId == product);
@@ -64,6 +66,11 @@ class requestHandler {
               let cnpjs = clients.map(client => client.cnpj);
               commissions = commissions.filter(commission => cnpjs.includes(commission.clientCNPJ));
             })
+        }
+        if (after || before) {
+          let start = new Date(after || 0);
+          let end = new Date(before || Date.now());
+          commissions = commissions.filter(commission => commission.date >= start && commission.date <= end);
         }
         
         res.status(200).send(commissions);
