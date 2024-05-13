@@ -1,5 +1,4 @@
-const { Op } = require('sequelize');
-const { Commission, Client, Product } = require("../models");
+const { Commission, Client, Product, Seller } = require("../models");
 class requestHandler {
   // POST
   createCommission = (req, res) => {
@@ -33,7 +32,7 @@ class requestHandler {
   getCommissions = (req, res) => {
     Commission.findAll()
       .then(async (commissions) => { 
-        let { query } = req;
+        let { query, user } = req;
         let product = query.product_id;
         let client = query.client_cnpj;
         let seller = query.seller_cpf;
@@ -42,6 +41,10 @@ class requestHandler {
         let after = query.after;
         let before = query.before;
 
+        if(!user.admin){
+          let seller = await Seller.findOne({ where: { id: user.id } });
+          commissions = commissions.filter(commission => commission.sellerCPF == seller.cpf);
+        }
         if (product) {
           commissions = commissions.filter(commission => commission.productId == product);
         }
