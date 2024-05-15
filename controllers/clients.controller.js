@@ -9,7 +9,7 @@ class requestHandler {
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
-      status: 0,
+      status: 0 || body.status,
     }
 
     Client.create(client).then((response)=>{
