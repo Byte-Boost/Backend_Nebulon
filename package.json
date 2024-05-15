@@ -4,7 +4,8 @@
   "description": "<h1 align=\"center\">🌀Nebulon Dashboard - Backend</h1>\r    <p align=\"center\">\r    <image alt=\"header-nebulon-db\" src=\"https://github.com/Byte-Boost/Backend_Nebulon/assets/105757405/5be8aa9f-1baf-4d62-aacc-433597affa75\"/>   \r    </p>\r <hr>",
   "main": "index.js",
   "scripts": {
-    "start": "node --env-file=.env index.js",
+    "create-db": "node --env-file=.env assertDatabase.js",
+    "start": "npm run create-db && node --env-file=.env index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -9,12 +9,13 @@ class requestHandler {
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
-      status: 0 || body.status,
+      status: body.status || 0,
     }
 
     Client.create(client).then((response)=>{
       res.status(201).send();
     }).catch((err) => {
+      console.log(err)
       res.status(400).send();
     });
     
