@@ -3,18 +3,19 @@ class requestHandler {
   // POST
   createProduct = (req, res) => {
     let { body } = req;
-
-    Product.create({
+    let product = {
       name: body.name,
       description: body.description,
       percentage: body.percentage,
       status: body.status || 0,
+    }
+    
+    Product.create(product).then((response)=>{
+      res.status(201).send();
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
     });
-
-    res.status(201).send();
   };
   // GET
   getProducts = (req, res) => {

@@ -5,7 +5,6 @@ class requestHandler {
   // POST
   registerSeller = async (req, res) => {
     let { body } = req;
-
     var seller = {
       name: body.name,
       cpf: body.cpf,

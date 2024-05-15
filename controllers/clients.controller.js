@@ -3,19 +3,21 @@ class requestHandler {
   // POST
   createClient = (req, res) => {
     let { body } = req;
-    Client.create({
+    let client = {
       tradingName: body.tradingName,
       companyName: body.companyName,
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
       status: 0,
+    }
+
+    Client.create(client).then((response)=>{
+      res.status(201).send();
     }).catch((err) => {
-      console.log(err);
       res.status(400).send();
     });
-
-    res.status(201).send();
+    
   };
   // GET
   getClients = (req, res) => {

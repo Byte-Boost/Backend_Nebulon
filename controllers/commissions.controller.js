@@ -3,15 +3,16 @@ class requestHandler {
   // POST
   createCommission = (req, res) => {
     let { body } = req;
-
-    Commission.create({
+    let commission = {
       date: body.date,
       value: body.value,
       paymentMethod: body.paymentMethod,
       clientCNPJ: body.clientCNPJ,
       productId: body.productId,
       sellerCPF: body.sellerCPF,
-    }).then(async ()=>{
+    }
+
+    Commission.create(commission).then(async ()=>{
       await Client.update(
         { status: 1},
         {
@@ -21,12 +22,13 @@ class requestHandler {
         }
       )
     })
+    .then((response)=>{
+      res.status(201).send();
+    })
     .catch((err) => {
       console.log(err);
       res.status(400).send();
     });
-
-    res.status(201).send();
   };
   // GET
   getCommissions = (req, res) => {
