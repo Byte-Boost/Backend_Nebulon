@@ -3,6 +3,12 @@ class requestHandler {
   // POST
   createClient = (req, res) => {
     let { body } = req;
+    
+    // Assert CNPJ and contact are in the correct format
+    body.cnpj = String(body.cnpj).replace(/[\D]+/g, '');
+    body.contact = String(body.contact).replace(/[\D]+/g, '');
+    
+    // Create client object
     let client = {
       tradingName: body.tradingName,
       companyName: body.companyName,
@@ -12,6 +18,7 @@ class requestHandler {
       status: body.status || 0,
     }
 
+    // Create client
     Client.create(client).then((response)=>{
       res.status(201).send();
     }).catch((err) => {

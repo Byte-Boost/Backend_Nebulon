@@ -3,6 +3,12 @@ class requestHandler {
   // POST
   createCommission = (req, res) => {
     let { body } = req;
+
+    // Assert CNPJ and CPF are in the correct format
+    body.clientCNPJ = String(body.clientCNPJ).replace(/[\D]+/g, "");
+    body.sellerCPF = String(body.sellerCPF).replace(/[\D]+/g, "");
+
+    // Create commission object
     let commission = {
       date: body.date,
       value: body.value,
@@ -12,7 +18,9 @@ class requestHandler {
       sellerCPF: body.sellerCPF,
     }
 
+    // Create commission
     Commission.create(commission).then(async ()=>{
+      // Register client as not new
       await Client.update(
         { status: 1},
         {

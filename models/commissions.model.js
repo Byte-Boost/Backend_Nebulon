@@ -22,6 +22,13 @@ module.exports = (sequelize, DataTypes) => {
     clientCNPJ: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [14, 14],
+        is: {
+          args: /^\d{14}$/,
+          msg: "Invalid CNPJ format",
+        },
+      }
     },
     productId: {
       type: DataTypes.INTEGER,
@@ -30,6 +37,13 @@ module.exports = (sequelize, DataTypes) => {
     sellerCPF: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [11, 11],
+        is: {
+          args: /^\d{11}$/,
+          msg: "Invalid CPF format",
+        },
+      }
     },
   });
   Commission.associate = function(models) {

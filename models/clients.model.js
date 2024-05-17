@@ -21,6 +21,13 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       unique: true,
       primaryKey: true,
+      validate: {
+        len: [14, 14],
+        is: {
+          args: /^\d{14}$/,
+          msg: "Invalid CNPJ format",
+        },
+      }
     },
     segment: {
       type: DataTypes.STRING,
@@ -29,6 +36,13 @@ module.exports = (sequelize, DataTypes) => {
     contact: {
       type: DataTypes.STRING,
       allowNull: false,
+      validate: {
+        len: [10, 11],
+        is: {
+          args: /^\d+$/,
+          msg: "Invalid phone number format",
+        },
+      }
     },
     status: {
       type: DataTypes.INTEGER,
