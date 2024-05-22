@@ -110,8 +110,10 @@ class requestHandler {
         let product = query.product_id;
         let client = query.client_cnpj;
         let seller = query.seller_cpf;
-        // let commValueSince = query.comm_value_after;
-        // let commValueBefore = query.comm_value_before;
+         // @Vinicius do remember to change these to actually work
+        let commValueSince = query.comm_value_after;
+        let commValueBefore = query.comm_value_before;
+        
         let saleValueSince = query.sale_value_after;
         let saleValueBefore = query.sale_value_before;
         let saleQtySince = query.sale_qty_after;
@@ -135,12 +137,12 @@ class requestHandler {
 
         // desired statistics
           // switch commission.value to commission.product.percentage check.
-          // if (commValueSince || commValueBefore) {
-          //   let start = new Date(commValueSince || 0);
-          //   let end = new Date(commValueBefore || Date.now());
-          //   let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
-          //   statistics.commValue = filtered.reduce((acc, commission) => acc + commission.value, 0);
-          // }
+        if (commValueSince || commValueBefore) {
+          let start = new Date(commValueSince || 0);
+          let end = new Date(commValueBefore || Date.now());
+          let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
+          statistics.commValue = filtered.reduce((acc, commission) => acc + commission.value, 0);
+        }
         if (saleValueSince || saleValueBefore) {
           let start = new Date(saleValueSince || 0);
           let end = new Date(saleValueBefore || Date.now());
