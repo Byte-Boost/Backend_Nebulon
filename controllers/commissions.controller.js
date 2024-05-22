@@ -103,6 +103,65 @@ class requestHandler {
             res.status(400).send();
           });
   };
+  getCommissionStats = (req, res) => {
+    Commission.findAll()
+      .then(async (commissions) => { 
+        let { query, user } = req;
+        let product = query.product_id;
+        let client = query.client_cnpj;
+        let seller = query.seller_cpf;
+        // let commValueSince = query.comm_value_after;
+        // let commValueBefore = query.comm_value_before;
+        let saleValueSince = query.sale_value_after;
+        let saleValueBefore = query.sale_value_before;
+        let saleQtySince = query.sale_qty_after;
+        let saleQtyBefore = query.sale_qty_before;
+
+        let statistics = {}
+        // Filter by user
+        if(!user.admin){
+          let seller = await Seller.findOne({ where: { id: user.id } });
+          commissions = commissions.filter(commission => commission.sellerCPF == seller.cpf);
+        }
+        if (product) {
+          commissions = commissions.filter(commission => commission.productId == product);
+        }
+        if (client) {
+          commissions = commissions.filter(commission => commission.clientCNPJ == client);
+        }
+        if (seller) {
+          commissions = commissions.filter(commission => commission.sellerCPF == seller);
+        }
+
+        // desired statistics
+          // switch commission.value to commission.product.percentage check.
+          // if (commValueSince || commValueBefore) {
+          //   let start = new Date(commValueSince || 0);
+          //   let end = new Date(commValueBefore || Date.now());
+          //   let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
+          //   statistics.commValue = filtered.reduce((acc, commission) => acc + commission.value, 0);
+          // }
+        if (saleValueSince || saleValueBefore) {
+          let start = new Date(saleValueSince || 0);
+          let end = new Date(saleValueBefore || Date.now());
+          let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
+          console.log(filtered.length)
+          statistics.saleValue = filtered.reduce((acc, commission) => acc + commission.value, 0);
+        }
+        if (saleQtySince || saleQtyBefore) {
+          let start = new Date(saleQtySince || 0);
+          let end = new Date(saleQtyBefore || Date.now());
+          let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
+          statistics.saleQty = filtered.length;
+        }
+        
+        res.status(200).send(statistics);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+  };
   
   // PUT
   updateCommission = (req, res) => {
