@@ -50,8 +50,6 @@ class requestHandler {
         let clientStatus = query.client_status;
         let after = query.after;
         let before = query.before;
-        let dateSort = query.date_sort; 
-        let priceSort = query.price_sort;
 
         if(!user.admin){
           let seller = await Seller.findOne({ where: { id: user.id } });
@@ -86,22 +84,6 @@ class requestHandler {
           let start = new Date(after || 0);
           let end = new Date(before || Date.now());
           commissions = commissions.filter(commission => commission.date >= start && commission.date <= end);
-        }
-        if (dateSort) {
-            if (dateSort == "desc") {
-              commissions.sort((a, b) => b.date - a.date);
-            }
-            else {
-              commissions.sort((a, b) => a.date - b.date); // Ascending
-            }
-        }
-        if (priceSort) {
-          if(priceSort == "desc") {
-            commissions.sort((a, b) => b.value - a.value);
-          }
-          else {
-            commissions.sort((a, b) => a.value - b.value); // Ascending
-          }
         }
         res.status(200).send(commissions);
       })
