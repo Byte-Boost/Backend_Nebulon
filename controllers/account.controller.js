@@ -6,6 +6,10 @@ class requestHandler {
   registerSeller = async (req, res) => {
     let { body } = req;
 
+    // Assert CPF is in the correct format
+    body.cpf = String(body.cpf).replace(/[\D]+/g, "");
+    
+    // Create seller object
     var seller = {
       name: body.name,
       cpf: body.cpf,
@@ -14,6 +18,7 @@ class requestHandler {
       admin: false,
     };
 
+    // Create seller
     Seller.create(seller)
       .then(() => {
         res.status(201).send();

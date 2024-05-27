@@ -3,23 +3,30 @@ class requestHandler {
   // POST
   createProduct = (req, res) => {
     let { body } = req;
-
-    Product.create({
+    let product = {
       name: body.name,
       description: body.description,
       percentage: body.percentage,
       status: body.status || 0,
+    }
+    
+    Product.create(product).then((response)=>{
+      res.status(201).send();
     }).catch((err) => {
       console.log(err);
       res.status(400).send();
     });
-
-    res.status(201).send();
   };
   // GET
   getProducts = (req, res) => {
     Product.findAll()
       .then((products) => {
+        let { query } = req;
+        let queryStatus = query.status 
+        if (queryStatus) {
+          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+          products = products.filter(product => product.status == status);
+        }
         res.status(200).send(products);
       })
       .catch((err) => {
@@ -37,18 +44,6 @@ class requestHandler {
             res.status(400).send();
           });
   };
-  getProductsWithClass = (req, res) => {
-    let { params } = req;
-    let status = params.class == "new" ? 0 : 1;
-    Product.findAll({ where: { status : status } })
-      .then((products) => {
-        res.status(200).send(products);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-  }
   // PUT
   updateProduct = (req, res) => {
     let { params, body } = req;

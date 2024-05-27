@@ -5,7 +5,6 @@ router.post('/', controller.createClient);
 router.get('/', controller.getClients);
 router.get('/:id', controller.getClientById);
 router.get('/cnpj/:cnpj', controller.getClientByCNPJ);
-router.get('/class/:class', controller.getClientsWithClass);
 router.put('/:id', controller.updateClient);
 router.delete('/:id', controller.deleteClient);
 

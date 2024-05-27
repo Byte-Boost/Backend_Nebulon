@@ -3,24 +3,44 @@ class requestHandler {
   // POST
   createClient = (req, res) => {
     let { body } = req;
-    Client.create({
+    
+    // Assert CNPJ and contact are in the correct format
+    body.cnpj = String(body.cnpj).replace(/[\D]+/g, '');
+    body.contact = String(body.contact).replace(/[\D]+/g, '');
+    
+    // Create client object
+    let client = {
       tradingName: body.tradingName,
       companyName: body.companyName,
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
-      status: 0,
+      status: body.status || 0,
+    }
+
+    // Create client
+    Client.create(client).then((response)=>{
+      res.status(201).send();
     }).catch((err) => {
-      console.log(err);
+      console.log(err)
       res.status(400).send();
     });
-
-    res.status(201).send();
+    
   };
   // GET
   getClients = (req, res) => {
     Client.findAll()
       .then((clients) => {
+        let { query } = req;
+        let queryStatus = query.status 
+        let segment = query.segment;
+        if (queryStatus) {
+          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+          clients = clients.filter(client => client.status == status);
+        }
+        if (segment) {
+          clients = clients.filter(client => client.segment == segment);
+        }
         res.status(200).send(clients);
       })
       .catch((err) => {
@@ -30,38 +50,25 @@ class requestHandler {
   };
   getClientById = (req, res) => {
     let { params } = req;
-    Client.findByPk(params.id).then((clients) => {
+    Client.findAll({ where: { id : params.id} })
+      .then((clients) => {
+        res.status(200).send(clients);
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
+  };
+  getClientByCNPJ = (req, res) => {  
+    let { params } = req;
+    Client.findByPk(params.cnpj).then((clients) => {
             res.status(200).send(clients);
           })
           .catch((err) => {
             console.log(err);
             res.status(400).send();
           });
-  };
-  getClientByCNPJ = (req, res) => {  
-    let { params } = req;
-    Client.findAll({ where: { cnpj : params.cnpj} })
-      .then((clients) => {
-        res.status(200).send(clients);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
   }
-  getClientsWithClass = (req, res) => {
-    let { params } = req;
-    let status = params.class == "new" ? 0 : 1;
-    Client.findAll({ where: { status : status } })
-      .then((clients) => {
-        res.status(200).send(clients);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
-  }
-
   // PUT
   updateClient = (req, res) => {
     let { params, body } = req;

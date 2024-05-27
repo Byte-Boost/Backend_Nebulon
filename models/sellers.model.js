@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       allowNull: false,
-      primaryKey: true,
+      unique: true,
     },
     name: {
       type: DataTypes.STRING,
@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       unique: true,
+      primaryKey: true,
+      validate: {
+        len: [11, 11],
+        is: {
+          args: /^\d{11}$/,
+          msg: "Invalid CPF format",
+        },
+      }
     },
     username: {
       type: DataTypes.STRING,
@@ -27,11 +35,12 @@ module.exports = (sequelize, DataTypes) => {
     admin: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: false,
     }
   });
   Seller.associate = function(models) {
     Seller.hasMany(models.Commission, {
-      foreignKey: 'sellerId',
+      foreignKey: 'sellerCPF',
     })
   };
   return Seller;
