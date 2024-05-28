@@ -6,6 +6,21 @@ const cors = require('cors');
 const authMiddleware = require('./middleware/auth.middleware');
 const admin = require('./services/admin.services');
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerJsdoc = require('swagger-jsdoc');
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Nebulon API',
+      version: '0.8.0',
+    },
+  },
+  apis: ['./routes/*.js'], // files containing annotations as above
+};
+const specs = swaggerJsdoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 app.use(cors());
 
 app.use(express.json())
