@@ -6,7 +6,6 @@ class requestHandler {
     let product = {
       name: body.name,
       description: body.description,
-      percentage: body.percentage,
       status: body.status || 0,
     }
     

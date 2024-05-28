@@ -7,37 +7,50 @@ class requestHandler {
     // Assert CNPJ and CPF are in the correct format
     body.clientCNPJ = String(body.clientCNPJ).replace(/[\D]+/g, "");
     body.sellerCPF = String(body.sellerCPF).replace(/[\D]+/g, "");
-
-    // Create commission object
-    let commission = {
-      date: body.date,
-      value: body.value,
-      paymentMethod: body.paymentMethod,
-      clientCNPJ: body.clientCNPJ,
-      productId: body.productId,
-      sellerCPF: body.sellerCPF,
-    }
-
-    // Create commission
-    Commission.create(commission).then(async ()=>{
-      // Register client as not new
-      await Client.update(
-        { status: 1},
-        {
-          where: {
-            cnpj: body.clientCNPJ
+    
+    // Check for first purchase
+    Client.findOne({ where: { cnpj: body.clientCNPJ } }).then((client) => {
+      console.log(client)
+      if (client.status == 0) {
+        firstPurchase = true;
+      }
+    })
+    .then(()=>{
+      // maybe throw all of the below in here
+      // Create commission object
+      let commission = {
+        date: body.date,
+        value: body.value,
+        commissionCut: body.commissionCut,
+        paymentMethod: body.paymentMethod,
+        clientsFirstPurchase: firstPurchase,
+        clientCNPJ: body.clientCNPJ,
+        productId: body.productId,
+        sellerCPF: body.sellerCPF,
+      }
+  
+      // Create commission
+      Commission.create(commission).then(async ()=>{
+        // Register client as not new
+        await Client.update(
+          { status: 1 },
+          {
+            where: {
+              cnpj: body.clientCNPJ
+            }
           }
-        }
-      )
+        )
+      })
+      .then((response)=>{
+        res.status(201).send();
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).send();
+      });
     })
-    .then((response)=>{
-      res.status(201).send();
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(400).send();
-    });
   };
+
   // GET
   getCommissions = (req, res) => {
     Commission.findAll()
@@ -171,6 +184,7 @@ class requestHandler {
     Commission.update({
       date: body.date,
       value: body.value,
+      commissionCut: body.commissionCut,
       paymentMethod: body.paymentMethod,
       clientId: body.clientId,
       productId: body.productId,
@@ -185,6 +199,7 @@ class requestHandler {
       
     res.status(200).send();
   };
+  
   // DELETE
   deleteCommission = (req, res) => {
     let { params } = req;

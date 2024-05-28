@@ -15,9 +15,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+    commissionCut: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
     paymentMethod: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    clientsFirstPurchase: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
     },
     clientCNPJ: {
       type: DataTypes.STRING,
