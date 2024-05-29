@@ -3,12 +3,12 @@ class requestHandler {
   // POST
   createCommission = (req, res) => {
     let { body } = req;
-
     // Assert CNPJ and CPF are in the correct format
     body.clientCNPJ = String(body.clientCNPJ).replace(/[\D]+/g, "");
     body.sellerCPF = String(body.sellerCPF).replace(/[\D]+/g, "");
     
     // Check for first purchase
+    let firstPurchase = false;
     Client.findOne({ where: { cnpj: body.clientCNPJ } }).then((client) => {
       console.log(client)
       if (client.status == 0) {
@@ -53,9 +53,14 @@ class requestHandler {
 
   // GET
   getCommissions = (req, res) => {
-    Commission.findAll()
+    let { query, user } = req;
+    let page = query.page ? parseInt(query.page) : 1; // default to page 1 if not provided
+    let limit = query.limit ? parseInt(query.limit) : 10; // default to 10 records per page if not provided
+    let offset = (page - 1) * limit;
+
+    Commission.findAll({ offset: offset, limit: limit})
       .then(async (commissions) => { 
-        let { query, user } = req;
+
         let product = query.product_id;
         let client = query.client_cnpj;
         let seller = query.seller_cpf;
