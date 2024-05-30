@@ -54,18 +54,24 @@ class requestHandler {
   // GET
   getCommissions = (req, res) => {
     let { query, user } = req;
-    let page = query.page ? parseInt(query.page) : 1; // default to page 1 if not provided
-    let limit = query.limit ? parseInt(query.limit) : 10; // default to 10 records per page if not provided
-    let offset = (page - 1) * limit;
+    
+    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let page = query.page ? parseInt(query.page) : 1;
+    let limit = query.limit ? parseInt(query.limit) : null;
+    let findOpt = {};
+    if (limit){
+      let offset = (page - 1) * limit;
+      findOpt = { offset: offset, limit: limit}
+    }
 
-    Commission.findAll({ offset: offset, limit: limit})
+    Commission.findAll(findOpt)
       .then(async (commissions) => { 
 
         let product = query.product_id;
         let client = query.client_cnpj;
         let seller = query.seller_cpf;
         let productStatus = query.product_status;
-        let clientStatus = query.client_status;
+        let firstPurchase = query.firstPurchase;
         let after = query.after;
         let before = query.before;
 
@@ -90,13 +96,8 @@ class requestHandler {
               commissions = commissions.filter(commission => ids.includes(commission.productId));
             })
         }
-        if (clientStatus) {
-          let status = clientStatus == "new" ? 0 : 1;
-          await Client.findAll({ where: { status : status } })
-            .then(async (clients) => {
-              let cnpjs = clients.map(client => client.cnpj);
-              commissions = commissions.filter(commission => cnpjs.includes(commission.clientCNPJ));
-            })
+        if (firstPurchase == "true") {
+          commissions = commissions.filter(commission => commission.clientsFirstPurchase == true);
         }
         if (after || before) {
           let start = new Date(after || 0);
