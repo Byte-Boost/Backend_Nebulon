@@ -15,7 +15,7 @@ class requestHandler {
       cnpj: body.cnpj,
       segment: body.segment,
       contact: body.contact,
-      status: body.status || 0,
+      status: body.status && body.status != "0" ? 1 : 0,
     }
 
     // Create client

@@ -6,7 +6,7 @@ class requestHandler {
     let product = {
       name: body.name,
       description: body.description,
-      status: body.status || 0,
+      status: body.status && body.status != "0" ? 1 : 0,
     }
     
     Product.create(product).then((response)=>{

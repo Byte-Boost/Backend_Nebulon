@@ -10,44 +10,53 @@ class requestHandler {
     // Check for first purchase
     let firstPurchase = false;
     Client.findOne({ where: { cnpj: body.clientCNPJ } }).then((client) => {
-      console.log(client)
       if (client.status == 0) {
         firstPurchase = true;
       }
     })
     .then(()=>{
-      // maybe throw all of the below in here
-      // Create commission object
-      let commission = {
-        date: body.date,
-        value: body.value,
-        commissionCut: body.commissionCut,
-        paymentMethod: body.paymentMethod,
-        clientsFirstPurchase: firstPurchase,
-        clientCNPJ: body.clientCNPJ,
-        productId: body.productId,
-        sellerCPF: body.sellerCPF,
-      }
-  
-      // Create commission
-      Commission.create(commission).then(async ()=>{
-        // Register client as not new
-        await Client.update(
-          { status: 1 },
-          {
-            where: {
-              cnpj: body.clientCNPJ
-            }
-          }
-        )
-      })
-      .then((response)=>{
-        res.status(201).send();
-      })
-      .catch((err) => {
-        console.log(err);
-        res.status(400).send();
-      });
+        // Create commission object
+        let commission = {
+          date: body.date,
+          value: body.value,
+          commissionCut: body.commissionCut,
+          paymentMethod: body.paymentMethod,
+          clientsFirstPurchase: firstPurchase,
+          clientCNPJ: body.clientCNPJ,
+          productId: body.productId,
+          sellerCPF: body.sellerCPF,
+        }
+    
+        // Create commission
+        Commission.create(commission).then(async ()=>{
+
+            // Register client as not new
+            await Client.update(
+              { status: 1 },
+              {
+                where: {
+                  cnpj: body.clientCNPJ
+                }
+              }
+            )
+
+            // Update seller score
+            await Seller.update({
+              score: Seller.sequelize.literal(`score + ${body.scorePoints ? body.scorePoints : 0}`),
+            }, {
+              where: {
+                cpf: body.sellerCPF
+              }
+            })
+
+        })
+        .then((response)=>{
+          res.status(201).send();
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(400).send();
+        });
     })
   };
 
