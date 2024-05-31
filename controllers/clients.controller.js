@@ -32,14 +32,18 @@ class requestHandler {
     Client.findAll()
       .then((clients) => {
         let { query } = req;
-        let queryStatus = query.status 
+        let queryStatus = query.status;
         let segment = query.segment;
+        let startsWith = query.startsWith;
         if (queryStatus) {
           let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
           clients = clients.filter(client => client.status == status);
         }
         if (segment) {
           clients = clients.filter(client => client.segment == segment);
+        }
+        if (startsWith) {
+          clients = clients.filter(client => client.tradingName.toUpperCase().startsWith(startsWith.toUpperCase()));
         }
         res.status(200).send(clients);
       })

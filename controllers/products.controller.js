@@ -21,10 +21,14 @@ class requestHandler {
     Product.findAll()
       .then((products) => {
         let { query } = req;
-        let queryStatus = query.status 
+        let queryStatus = query.status;
+        let startsWith = query.startsWith;
         if (queryStatus) {
           let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
           products = products.filter(product => product.status == status);
+        }
+        if (startsWith) {
+          products = products.filter(product => product.name.toUpperCase().startsWith(startsWith.toUpperCase()));
         }
         res.status(200).send(products);
       })

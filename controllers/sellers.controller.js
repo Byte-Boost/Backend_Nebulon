@@ -8,8 +8,12 @@ class requestHandler {
     })
       .then((sellers) => {
         let adminOnly = query.adminOnly;
-        if (adminOnly.toUpperCase() == "TRUE") {
+        let startsWith = query.startsWith;
+        if (adminOnly && adminOnly.toUpperCase() == "TRUE") {
           sellers = sellers.filter(seller => seller.admin == true);
+        }
+        if (startsWith) {
+          sellers = sellers.filter(seller => seller.name.toUpperCase().startsWith(startsWith.toUpperCase()));
         }
         res.status(200).send(sellers);
       })
