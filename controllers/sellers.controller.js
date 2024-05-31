@@ -2,10 +2,15 @@ const { Seller } = require("../models");
 class requestHandler {
   // GET
   getSellers = (req, res) => {
+    let { query } = req;
     Seller.findAll({
       attributes: { exclude: ["password", "username"]}
     })
       .then((sellers) => {
+        let adminOnly = query.adminOnly;
+        if (adminOnly.toUpperCase() == "TRUE") {
+          sellers = sellers.filter(seller => seller.admin == true);
+        }
         res.status(200).send(sellers);
       })
       .catch((err) => {
