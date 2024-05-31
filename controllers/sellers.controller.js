@@ -3,9 +3,15 @@ class requestHandler {
   // GET
   getSellers = (req, res) => {
     let { query } = req;
-    Seller.findAll({
-      attributes: { exclude: ["password", "username"]}
-    })
+    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let page = query.page ? parseInt(query.page) : 1;
+    let limit = query.limit ? parseInt(query.limit) : null;
+    let findOpt = {order: [['id', 'ASC']], attributes: { exclude: ["password", "username"] }};
+    if (limit){
+      let offset = (page - 1) * limit;
+      findOpt = {...findOpt, offset: offset, limit: limit}
+    }
+    Seller.findAll(findOpt)
       .then((sellers) => {
         let adminOnly = query.adminOnly;
         let startsWith = query.startsWith;

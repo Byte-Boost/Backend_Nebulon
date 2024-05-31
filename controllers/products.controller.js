@@ -18,9 +18,17 @@ class requestHandler {
   };
   // GET
   getProducts = (req, res) => {
-    Product.findAll()
+    let { query } = req;
+    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let page = query.page ? parseInt(query.page) : 1;
+    let limit = query.limit ? parseInt(query.limit) : null;
+    let findOpt = {order: [['id', 'ASC']]};
+    if (limit){
+      let offset = (page - 1) * limit;
+      findOpt = {...findOpt, offset: offset, limit: limit}
+    }
+    Product.findAll(findOpt)
       .then((products) => {
-        let { query } = req;
         let queryStatus = query.status;
         let startsWith = query.startsWith;
         if (queryStatus) {

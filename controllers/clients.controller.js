@@ -29,9 +29,17 @@ class requestHandler {
   };
   // GET
   getClients = (req, res) => {
-    Client.findAll()
+    let { query } = req;
+    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let page = query.page ? parseInt(query.page) : 1;
+    let limit = query.limit ? parseInt(query.limit) : null;
+    let findOpt = {order: [['id', 'ASC']]};
+    if (limit){
+      let offset = (page - 1) * limit;
+      findOpt = {...findOpt, offset: offset, limit: limit}
+    }
+    Client.findAll(findOpt)
       .then((clients) => {
-        let { query } = req;
         let queryStatus = query.status;
         let segment = query.segment;
         let startsWith = query.startsWith;
