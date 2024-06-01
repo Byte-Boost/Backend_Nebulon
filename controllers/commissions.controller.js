@@ -166,20 +166,23 @@ class requestHandler {
           // switch commission.value to commission.product.percentage check.
         if (commValueSince || commValueBefore) {
           let start = new Date(commValueSince || 0);
-          let end = new Date(commValueBefore ? commValueBefore+"T23:59:59.9999Z" : Date.now());
+          let end = new Date(commValueBefore ? commValueBefore: Date.now());
+          end.setUTCHours(23,59,59,999);
           let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
           statistics.commValue = filtered.reduce((acc, commission) => acc + commission.commissionCut, 0);
         }
         if (saleValueSince || saleValueBefore) {
           let start = new Date(saleValueSince || 0);
-          let end = new Date(saleValueBefore ? saleValueBefore+"T23:59:59.9999Z" : Date.now());
+          let end = new Date(saleValueBefore ? saleValueBefore : Date.now());
+          end.setUTCHours(23,59,59,999);
           let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
           console.log(filtered.length)
           statistics.saleValue = filtered.reduce((acc, commission) => acc + commission.value, 0);
         }
         if (saleQtySince || saleQtyBefore) {
           let start = new Date(saleQtySince || 0);
-          let end = new Date(saleQtyBefore ? saleQtyBefore+"T23:59:59.9999Z" : Date.now());
+          let end = new Date(saleQtyBefore ? saleQtyBefore : Date.now());
+          end.setUTCHours(23,59,59,999);
           let filtered = commissions.filter(commission => commission.date >= start && commission.date <= end);
           statistics.saleQty = filtered.length;
         }
