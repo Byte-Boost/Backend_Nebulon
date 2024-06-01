@@ -32,6 +32,7 @@ app.use('/commissions', require('./routes/commissions.routes'));
 app.use('/products', require('./routes/products.routes'));
 app.use('/clients', require('./routes/clients.routes'));
 app.use('/sellers', require('./routes/sellers.routes'));
+app.use('/scores', require('./routes/scores.routes'));
 
 db.sequelize.sync().then(()=>{
   // Create an admin user if it doesn't exist
