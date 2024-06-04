@@ -1,4 +1,5 @@
 const { Commission, Client, Product, Seller } = require("../models");
+const { Op } = require("sequelize");
 class requestHandler {
   // POST
   createCommission = (req, res) => {
@@ -61,58 +62,79 @@ class requestHandler {
   };
 
   // GET
-  getCommissions = (req, res) => {
+  getCommissions = async (req, res) => {
     let { query, user } = req;
     
-    // Pagination - page and limit - defaults to page 1 and unlimited.
+    
+    // filter options
+    let product = query.product_id;
+    let client = query.client_cnpj;
+    let seller = query.seller_cpf;
+    let productStatus = query.product_status;
+    let firstPurchase = query.firstPurchase;
+    let after = query.after;
+    let before = query.before;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    let findOpt = {};
+    // default options
+    let findOpt = {
+      where: {
+        // Default find options
+        sellerCPF: {[Op.ne]: null},
+        productId: {[Op.ne]: null},
+        clientCNPJ: {[Op.ne]: null},
+        clientsFirstPurchase: {[Op.ne]: null},
+        date: {[Op.ne]: null},
+      },
+      offset: 0,
+      limit: null
+    };
+
+    // pagination
     if (limit){
       let offset = (page - 1) * limit;
-      findOpt = { offset: offset, limit: limit}
+      findOpt.offset = offset;
+      findOpt.limit = limit;
+    }
+    // specificied product/client/seller
+    if (product) {
+      findOpt.where.productId = product;
+    }
+    if (client) {
+      findOpt.where.clientCNPJ = client;
+    }
+    if (seller) {
+      findOpt.where.sellerCPF = seller;
+    }
+    // if user is not admin, show only user's commissions
+    if(!user.admin){
+      let seller = await Seller.findOne({ where: { id: user.id } });
+      findOpt.where.sellerCPF = seller.cpf;
+    }
+    // if product status is specified, filter by it
+    if (productStatus) {
+      let status = productStatus == "new" ? 0 : 1;
+      // conflicts with the if (product) {} above
+      await Product.findAll({ where: { status : status } })
+        .then(async (products) => {
+          let ids = products.map(product => product.id);
+          findOpt.where.productId = {[Op.or]: ids};
+        })
+    }
+    // if first purchase is specified, filter by it
+    if (firstPurchase == "true") {
+      findOpt.where.clientsFirstPurchase = true;
+    }
+    // if date range is specified, filter by it
+    if (after || before) {
+      let start = new Date(after || 0);
+      let end = new Date(before || Date.now());
+      end.setUTCHours(23,59,59,999);
+      findOpt.where.date = { [Op.between]: [start, end] };
     }
 
     Commission.findAll(findOpt)
-      .then(async (commissions) => { 
-
-        let product = query.product_id;
-        let client = query.client_cnpj;
-        let seller = query.seller_cpf;
-        let productStatus = query.product_status;
-        let firstPurchase = query.firstPurchase;
-        let after = query.after;
-        let before = query.before;
-
-        if(!user.admin){
-          let seller = await Seller.findOne({ where: { id: user.id } });
-          commissions = commissions.filter(commission => commission.sellerCPF == seller.cpf);
-        }
-        if (product) {
-          commissions = commissions.filter(commission => commission.productId == product);
-        }
-        if (client) {
-          commissions = commissions.filter(commission => commission.clientCNPJ == client);
-        }
-        if (seller) {
-          commissions = commissions.filter(commission => commission.sellerCPF == seller);
-        }
-        if (productStatus) {
-          let status = productStatus == "new" ? 0 : 1;
-          await Product.findAll({ where: { status : status } })
-            .then(async (products) => {
-              let ids = products.map(product => product.id);
-              commissions = commissions.filter(commission => ids.includes(commission.productId));
-            })
-        }
-        if (firstPurchase == "true") {
-          commissions = commissions.filter(commission => commission.clientsFirstPurchase == true);
-        }
-        if (after || before) {
-          let start = new Date(after || 0);
-          let end = new Date(before || Date.now());
-          commissions = commissions.filter(commission => commission.date >= start && commission.date <= end);
-        }
+      .then((commissions) => { 
         res.status(200).send(commissions);
       })
       .catch((err) => {
