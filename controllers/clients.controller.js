@@ -37,35 +37,18 @@ class requestHandler {
     let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    // default options
+
     let findOpt = {
       where: {
-        // Default find options
-        status: {[Op.ne]: null},
-        segment: {[Op.ne]: null},
-        tradingName: {[Op.ne]: null},
+        status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
+        segment: segment ? {[Op.regexp]: `^${segment}`} : {[Op.ne]: null},
+        tradingName: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
       },
       order: [['id', 'ASC']],
-      offset: 0,
-      limit: null
+      offset: (page - 1) * limit,
+      limit: limit
     };
 
-    // pagination & filters
-    if (limit){
-      let offset = (page - 1) * limit;
-      findOpt.offset = offset;
-      findOpt.limit = limit;
-    }
-    if (queryStatus) {
-      let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
-      findOpt.where.status = status;
-    }
-    if (segment) {
-      findOpt.where.segment = {[Op.regexp]: `^${segment}`};
-    }
-    if (startsWith) {
-      findOpt.where.tradingName = {[Op.regexp]: `^${startsWith}`};
-    }
     Client.findAll(findOpt)
       .then((clients) => {
         res.status(200).send(clients);

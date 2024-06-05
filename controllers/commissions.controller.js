@@ -64,6 +64,7 @@ class requestHandler {
   // GET
   getCommissions = async (req, res) => {
     let { query, user } = req;
+    let currentUser = await Seller.findOne({ where: { id: user.id } });
     
     
     // filter options
@@ -76,27 +77,20 @@ class requestHandler {
     let before = query.before;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    // default options
+
     let findOpt = {
       where: {
-        // Default find options
-        sellerCPF: {[Op.ne]: null},
+        // If user isn't admin, show only user's. if not, show what was requested
+        sellerCPF: !user.admin ? currentUser.cpf : seller ? seller : {[Op.ne]: null},
         productId: {[Op.ne]: null},
         clientCNPJ: {[Op.ne]: null},
-        clientsFirstPurchase: {[Op.ne]: null},
+        clientsFirstPurchase: (firstPurchase && firstPurchase == "true") ? true : {[Op.ne]: null},
         date: {[Op.ne]: null},
       },
       order: [['date', 'ASC']],
-      offset: 0,
-      limit: null
+      offset: (page - 1) * limit,
+      limit: limit
     };
-
-    // pagination
-    if (limit){
-      let offset = (page - 1) * limit;
-      findOpt.offset = offset;
-      findOpt.limit = limit;
-    }
     // specificied product/client/seller
     if (product) {
       findOpt.where.productId = product;
@@ -107,11 +101,6 @@ class requestHandler {
     if (seller) {
       findOpt.where.sellerCPF = seller;
     }
-    // if user is not admin, show only user's commissions
-    if(!user.admin){
-      let seller = await Seller.findOne({ where: { id: user.id } });
-      findOpt.where.sellerCPF = seller.cpf;
-    }
     // if product status is specified, filter by it
     if (productStatus) {
       let status = productStatus == "new" ? 0 : 1;
@@ -121,10 +110,6 @@ class requestHandler {
           let ids = products.map(product => product.id);
           findOpt.where.productId = {[Op.or]: ids};
         })
-    }
-    // if first purchase is specified, filter by it
-    if (firstPurchase == "true") {
-      findOpt.where.clientsFirstPurchase = true;
     }
     // if date range is specified, filter by it
     if (after || before) {

@@ -24,30 +24,17 @@ class requestHandler {
     let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    // default options
+
     let findOpt = {
       where: {
-        // Default find options
-        status: {[Op.ne]: null},
-        name: {[Op.ne]: null},
+        status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
+        name: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
       },
       order: [['id', 'ASC']],
-      offset: 0,
-      limit: null
+      offset: (page - 1) * limit,
+      limit: limit
     };
-    // pagination & filters
-    if (limit){
-      let offset = (page - 1) * limit;
-      findOpt.offset = offset;
-      findOpt.limit = limit;
-    }
-    if (queryStatus) {
-      let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
-      findOpt.where.status = status;
-    }
-    if (startsWith) {
-      findOpt.where.name = {[Op.regexp]: `^${startsWith}`};
-    }
+
     Product.findAll(findOpt)
       .then((products) => {
         res.status(200).send(products);

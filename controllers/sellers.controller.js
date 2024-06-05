@@ -11,30 +11,20 @@ class requestHandler {
     let sortMethod = query.sortMethod;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    // default options
+    
+    // Query options
     let findOpt = {
       where: {
-        // Default find options
-        name: {[Op.ne]: null},
-        admin: {[Op.ne]: null},
+        // Selected Filter ? Proper logic : Default Filter
+        name: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
+        admin: (adminOnly && adminOnly.toUpperCase() == "TRUE")? true : {[Op.ne]: null},
       },
       attributes: { exclude: ["password", "username"] },
       order: [['id', 'ASC']],
-      offset: 0,
-      limit: null
+      offset: (page - 1) * limit,
+      limit: limit
     };
-    // pagination & filters
-    if (limit){
-      let offset = (page - 1) * limit;
-      findOpt.offset = offset;
-      findOpt.limit = limit;
-    }
-    if (adminOnly && adminOnly.toUpperCase() == "TRUE") {
-      findOpt.where.admin = true;
-    }
-    if (startsWith) {
-      findOpt.where.name = {[Op.regexp]: `^${startsWith}`};
-    }
+
     if (sortMethod) {
       switch (sortMethod.toUpperCase()) {
         case "SCORE":
@@ -48,6 +38,7 @@ class requestHandler {
           break
       }
     }
+    
     Seller.findAll(findOpt)
       .then((sellers) => {
         res.status(200).send(sellers);
