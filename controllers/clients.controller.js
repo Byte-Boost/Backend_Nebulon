@@ -35,8 +35,22 @@ class requestHandler {
     let queryStatus = query.status;
     let segment = query.segment;
     let startsWith = query.startsWith;
+    let sortMethod = query.sortBy || "ID";
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
+
+    function sortBy(sortMethod){
+      switch (sortMethod.toUpperCase()) {
+        case "STATUS":
+          return [['status', 'ASC']];
+        case "SEGMENT":
+          return [['segment', 'ASC']];
+        case "NAME":
+          return [['tradingName', 'ASC']];
+        default:
+          return [['id', 'ASC']];
+      }
+    }
 
     // Query options
     let findOpt = {
@@ -46,11 +60,11 @@ class requestHandler {
         segment: segment ? {[Op.regexp]: `^${segment}`} : {[Op.ne]: null},
         tradingName: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
       },
-      order: [['id', 'ASC']],
+      order: sortBy(sortMethod),
       offset: (page - 1) * limit,
       limit: limit
     };
-    
+
     // Query & response
     Client.findAll(findOpt)
       .then((clients) => {

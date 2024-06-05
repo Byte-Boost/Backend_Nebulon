@@ -23,9 +23,20 @@ class requestHandler {
     // Filter options
     let queryStatus = query.status;
     let startsWith = query.startsWith;
+    let sortMethod = query.sortBy || "ID";
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-
+    
+    function sortBy(sortMethod){
+      switch (sortMethod.toUpperCase()) {
+        case "STATUS":
+          return [['status', 'ASC']];
+        case "NAME":
+          return [['name', 'ASC']];
+        default:
+          return [['id', 'ASC']];
+      }
+    }
     // Query options
     let findOpt = {
       where: {
@@ -33,11 +44,11 @@ class requestHandler {
         status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
         name: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
       },
-      order: [['id', 'ASC']],
+      order: sortBy(sortMethod),
       offset: (page - 1) * limit,
       limit: limit
     };
-    
+
     // Query & response
     Product.findAll(findOpt)
       .then((products) => {

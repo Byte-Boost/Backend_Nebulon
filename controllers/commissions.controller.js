@@ -74,6 +74,7 @@ class requestHandler {
     let firstPurchase = query.firstPurchase;
     let after = query.after;
     let before = query.before;
+    let sortMethod = query.sortBy || "DATE";
     let page = query.page ? parseInt(query.page) : 0;
     let limit = query.limit ? parseInt(query.limit) : null;
 
@@ -111,6 +112,24 @@ class requestHandler {
       if (product) return {[Op.eq]: product}
       return {[Op.ne]: null}
     }
+    function sortBy(sortMethod){
+      switch (sortMethod.toUpperCase()) {
+        case "PRODUCT":
+          return [['productId', 'ASC']];
+        case "CLIENT":
+          return [['clientCNPJ', 'ASC']];
+        case "SELLER":
+          return [['sellerCPF', 'ASC']];
+        case "VALUE":
+          return [['value', 'ASC']];
+        case "ID":
+          return [['id', 'ASC']];
+        case "PAYMENT":
+          return [['paymentMethod', 'ASC']];
+        default:
+          return [['date', 'ASC']];
+      }
+    }
 
     // Query options
     let findOpt = {
@@ -122,11 +141,11 @@ class requestHandler {
         clientsFirstPurchase: (firstPurchase && firstPurchase == "true") ? true : {[Op.ne]: null},
         date: getBetweenDate(after || 0, before || Date.now())
       },
-      order: [['id', 'ASC']],
+      order: sortBy(sortMethod),
       offset: (page - 1) * limit,
       limit: limit
     };
-    
+
     // Query & response
     Commission.findAll(findOpt)
       .then((commissions) => { 
