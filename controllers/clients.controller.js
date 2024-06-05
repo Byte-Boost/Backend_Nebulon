@@ -31,15 +31,17 @@ class requestHandler {
   // GET
   getClients = (req, res) => {
     let { query } = req;
-    // filter options
+    // Filter options
     let queryStatus = query.status;
     let segment = query.segment;
     let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
 
+    // Query options
     let findOpt = {
       where: {
+        // Selected Filter ? Proper logic : Default Filter
         status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
         segment: segment ? {[Op.regexp]: `^${segment}`} : {[Op.ne]: null},
         tradingName: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
@@ -48,7 +50,8 @@ class requestHandler {
       offset: (page - 1) * limit,
       limit: limit
     };
-
+    
+    // Query & response
     Client.findAll(findOpt)
       .then((clients) => {
         res.status(200).send(clients);

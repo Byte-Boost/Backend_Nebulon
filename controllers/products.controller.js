@@ -20,13 +20,16 @@ class requestHandler {
   // GET
   getProducts = (req, res) => {
     let { query } = req;
+    // Filter options
     let queryStatus = query.status;
     let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
 
+    // Query options
     let findOpt = {
       where: {
+        // Selected Filter ? Proper logic : Default Filter
         status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
         name: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
       },
@@ -34,7 +37,8 @@ class requestHandler {
       offset: (page - 1) * limit,
       limit: limit
     };
-
+    
+    // Query & response
     Product.findAll(findOpt)
       .then((products) => {
         res.status(200).send(products);

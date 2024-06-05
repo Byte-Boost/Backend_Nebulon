@@ -65,8 +65,7 @@ class requestHandler {
   getCommissions = async (req, res) => {
     let { query, user } = req;
     let currentUser = await Seller.findOne({ where: { id: user.id } });
-    
-    
+
     // filter options
     let product = query.product_id;
     let client = query.client_cnpj;
@@ -75,50 +74,60 @@ class requestHandler {
     let firstPurchase = query.firstPurchase;
     let after = query.after;
     let before = query.before;
-    let page = query.page ? parseInt(query.page) : 1;
+    let page = query.page ? parseInt(query.page) : 0;
     let limit = query.limit ? parseInt(query.limit) : null;
 
+    // Auxiliary filter functions
+    function getBetweenDate (after, before) {
+      // returns the logic for a date between after and before
+      let start = new Date(after);
+      let end = new Date(before);
+      end.setUTCHours(23,59,59,999);
+      return { [Op.between]: [start, end] };
+    }
+    async function getProductsWithStatus(status) {
+      // Auxiliary function to get all products with a certain status as an array of ids
+      status = status == "new" ? 0 : status == "old" ? 1 : undefined;
+      if (status == undefined) return undefined
+      
+      return await Product.findAll({ where: { status : status } })
+        .then(async (products) => {
+          let ids = products.map(product => product.id);
+          return ids;
+      })
+
+    }
+    async function mergeProductFIlters(){
+      // Basically handles the problem of having to filter by product, product status or both.
+      if (productStatus && product) {
+        return {
+          [Op.and]: { 
+            [Op.eq]: product,
+            [Op.in]: await getProductsWithStatus(productStatus)
+          }
+        }
+      }
+      if (productStatus) return {[Op.in]: await getProductsWithStatus(productStatus)}
+      if (product) return {[Op.eq]: product}
+      return {[Op.ne]: null}
+    }
+
+    // Query options
     let findOpt = {
       where: {
-        // If user isn't admin, show only user's. if not, show what was requested
+        // Selected Filter ? Proper logic : Default Filter
         sellerCPF: !user.admin ? currentUser.cpf : seller ? seller : {[Op.ne]: null},
-        productId: {[Op.ne]: null},
-        clientCNPJ: {[Op.ne]: null},
+        productId: await mergeProductFIlters(),
+        clientCNPJ: client ? client : {[Op.ne]: null},
         clientsFirstPurchase: (firstPurchase && firstPurchase == "true") ? true : {[Op.ne]: null},
-        date: {[Op.ne]: null},
+        date: getBetweenDate(after || 0, before || Date.now())
       },
-      order: [['date', 'ASC']],
+      order: [['id', 'ASC']],
       offset: (page - 1) * limit,
       limit: limit
     };
-    // specificied product/client/seller
-    if (product) {
-      findOpt.where.productId = product;
-    }
-    if (client) {
-      findOpt.where.clientCNPJ = client;
-    }
-    if (seller) {
-      findOpt.where.sellerCPF = seller;
-    }
-    // if product status is specified, filter by it
-    if (productStatus) {
-      let status = productStatus == "new" ? 0 : 1;
-      // conflicts with the if (product) {} above
-      await Product.findAll({ where: { status : status } })
-        .then(async (products) => {
-          let ids = products.map(product => product.id);
-          findOpt.where.productId = {[Op.or]: ids};
-        })
-    }
-    // if date range is specified, filter by it
-    if (after || before) {
-      let start = new Date(after || 0);
-      let end = new Date(before || Date.now());
-      end.setUTCHours(23,59,59,999);
-      findOpt.where.date = { [Op.between]: [start, end] };
-    }
-
+    
+    // Query & response
     Commission.findAll(findOpt)
       .then((commissions) => { 
         res.status(200).send(commissions);

@@ -6,12 +6,24 @@ class requestHandler {
   // GET
   getSellers = (req, res) => {
     let { query } = req;
+    // Filter options
     let adminOnly = query.adminOnly;
     let startsWith = query.startsWith;
-    let sortMethod = query.sortMethod;
+    let sortMethod = query.sortBy || "ID";
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
     
+    function sortBy(sortMethod){
+      switch (sortMethod.toUpperCase()) {
+        case "SCORE":
+          return [['score', 'DESC']];
+        case "NAME":
+          return [['name', 'ASC']];
+        default:
+          return [['id', 'ASC']];
+      }
+    }
+
     // Query options
     let findOpt = {
       where: {
@@ -20,25 +32,12 @@ class requestHandler {
         admin: (adminOnly && adminOnly.toUpperCase() == "TRUE")? true : {[Op.ne]: null},
       },
       attributes: { exclude: ["password", "username"] },
-      order: [['id', 'ASC']],
+      order: sortBy(sortMethod),
       offset: (page - 1) * limit,
       limit: limit
     };
 
-    if (sortMethod) {
-      switch (sortMethod.toUpperCase()) {
-        case "SCORE":
-          findOpt.order = [['score', 'DESC']];
-          break;
-        case "NAME":
-          findOpt.order = [['name', 'ASC']];
-          break;
-        default:
-          findOpt.order = [['id', 'ASC']];
-          break
-      }
-    }
-    
+    // Query & response
     Seller.findAll(findOpt)
       .then((sellers) => {
         res.status(200).send(sellers);
