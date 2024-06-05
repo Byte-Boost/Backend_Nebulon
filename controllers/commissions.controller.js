@@ -86,6 +86,7 @@ class requestHandler {
         clientsFirstPurchase: {[Op.ne]: null},
         date: {[Op.ne]: null},
       },
+      order: [['date', 'ASC']],
       offset: 0,
       limit: null
     };

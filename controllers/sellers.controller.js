@@ -6,24 +6,50 @@ class requestHandler {
   // GET
   getSellers = (req, res) => {
     let { query } = req;
-    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let adminOnly = query.adminOnly;
+    let startsWith = query.startsWith;
+    let sortMethod = query.sortMethod;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    let findOpt = {order: [['id', 'ASC']], attributes: { exclude: ["password", "username"] }};
+    // default options
+    let findOpt = {
+      where: {
+        // Default find options
+        name: {[Op.ne]: null},
+        admin: {[Op.ne]: null},
+      },
+      attributes: { exclude: ["password", "username"] },
+      order: [['id', 'ASC']],
+      offset: 0,
+      limit: null
+    };
+    // pagination & filters
     if (limit){
       let offset = (page - 1) * limit;
-      findOpt = {...findOpt, offset: offset, limit: limit}
+      findOpt.offset = offset;
+      findOpt.limit = limit;
+    }
+    if (adminOnly && adminOnly.toUpperCase() == "TRUE") {
+      findOpt.where.admin = true;
+    }
+    if (startsWith) {
+      findOpt.where.name = {[Op.regexp]: `^${startsWith}`};
+    }
+    if (sortMethod) {
+      switch (sortMethod.toUpperCase()) {
+        case "SCORE":
+          findOpt.order = [['score', 'DESC']];
+          break;
+        case "NAME":
+          findOpt.order = [['name', 'ASC']];
+          break;
+        default:
+          findOpt.order = [['id', 'ASC']];
+          break
+      }
     }
     Seller.findAll(findOpt)
       .then((sellers) => {
-        let adminOnly = query.adminOnly;
-        let startsWith = query.startsWith;
-        if (adminOnly && adminOnly.toUpperCase() == "TRUE") {
-          sellers = sellers.filter(seller => seller.admin == true);
-        }
-        if (startsWith) {
-          sellers = sellers.filter(seller => seller.name.toUpperCase().startsWith(startsWith.toUpperCase()));
-        }
         res.status(200).send(sellers);
       })
       .catch((err) => {

@@ -1,4 +1,5 @@
 const { Client } = require("../models");
+const { Op } = require("sequelize");
 class requestHandler {
   // POST
   createClient = (req, res) => {
@@ -30,29 +31,43 @@ class requestHandler {
   // GET
   getClients = (req, res) => {
     let { query } = req;
-    // Pagination - page and limit - defaults to page 1 and unlimited.
+    // filter options
+    let queryStatus = query.status;
+    let segment = query.segment;
+    let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    let findOpt = {order: [['id', 'ASC']]};
+    // default options
+    let findOpt = {
+      where: {
+        // Default find options
+        status: {[Op.ne]: null},
+        segment: {[Op.ne]: null},
+        tradingName: {[Op.ne]: null},
+      },
+      order: [['id', 'ASC']],
+      offset: 0,
+      limit: null
+    };
+
+    // pagination & filters
     if (limit){
       let offset = (page - 1) * limit;
-      findOpt = {...findOpt, offset: offset, limit: limit}
+      findOpt.offset = offset;
+      findOpt.limit = limit;
+    }
+    if (queryStatus) {
+      let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+      findOpt.where.status = status;
+    }
+    if (segment) {
+      findOpt.where.segment = {[Op.regexp]: `^${segment}`};
+    }
+    if (startsWith) {
+      findOpt.where.tradingName = {[Op.regexp]: `^${startsWith}`};
     }
     Client.findAll(findOpt)
       .then((clients) => {
-        let queryStatus = query.status;
-        let segment = query.segment;
-        let startsWith = query.startsWith;
-        if (queryStatus) {
-          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
-          clients = clients.filter(client => client.status == status);
-        }
-        if (segment) {
-          clients = clients.filter(client => client.segment == segment);
-        }
-        if (startsWith) {
-          clients = clients.filter(client => client.tradingName.toUpperCase().startsWith(startsWith.toUpperCase()));
-        }
         res.status(200).send(clients);
       })
       .catch((err) => {

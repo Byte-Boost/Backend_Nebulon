@@ -1,4 +1,5 @@
 const { Product } = require("../models");
+const { Op } = require("sequelize");
 class requestHandler {
   // POST
   createProduct = (req, res) => {
@@ -19,25 +20,36 @@ class requestHandler {
   // GET
   getProducts = (req, res) => {
     let { query } = req;
-    // Pagination - page and limit - defaults to page 1 and unlimited.
+    let queryStatus = query.status;
+    let startsWith = query.startsWith;
     let page = query.page ? parseInt(query.page) : 1;
     let limit = query.limit ? parseInt(query.limit) : null;
-    let findOpt = {order: [['id', 'ASC']]};
+    // default options
+    let findOpt = {
+      where: {
+        // Default find options
+        status: {[Op.ne]: null},
+        name: {[Op.ne]: null},
+      },
+      order: [['id', 'ASC']],
+      offset: 0,
+      limit: null
+    };
+    // pagination & filters
     if (limit){
       let offset = (page - 1) * limit;
-      findOpt = {...findOpt, offset: offset, limit: limit}
+      findOpt.offset = offset;
+      findOpt.limit = limit;
+    }
+    if (queryStatus) {
+      let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
+      findOpt.where.status = status;
+    }
+    if (startsWith) {
+      findOpt.where.name = {[Op.regexp]: `^${startsWith}`};
     }
     Product.findAll(findOpt)
       .then((products) => {
-        let queryStatus = query.status;
-        let startsWith = query.startsWith;
-        if (queryStatus) {
-          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
-          products = products.filter(product => product.status == status);
-        }
-        if (startsWith) {
-          products = products.filter(product => product.name.toUpperCase().startsWith(startsWith.toUpperCase()));
-        }
         res.status(200).send(products);
       })
       .catch((err) => {
