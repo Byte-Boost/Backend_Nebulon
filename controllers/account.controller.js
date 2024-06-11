@@ -15,7 +15,7 @@ class requestHandler {
       cpf: body.cpf,
       username: body.username,
       password: await service.getHashed(body.password),
-      admin: false,
+      admin: body.admin || false,
     };
 
     // Create seller
