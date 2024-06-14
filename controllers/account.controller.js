@@ -44,6 +44,22 @@ class requestHandler {
 
   };
 
+  // PUT
+  updateSeller = async (req, res) => {
+    let { body, params } = req;
+    Seller.update({
+      name: body.name,
+      }, {
+      where: {
+        id: params.id
+      },
+    }).catch((err) => {
+      console.log(err);
+      res.status(400).send();
+    });
+
+    res.status(200).send();
+  }
   // DELETE
   deleteSeller = (req, res) => {
     let { params } = req;

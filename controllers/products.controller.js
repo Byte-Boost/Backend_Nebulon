@@ -76,8 +76,7 @@ class requestHandler {
     Product.update({
       name: body.name,
       description: body.description,
-      percentage: body.percentage,
-      status: body.status,}, {
+      }, {
         where: {
           id: params.id
         },

@@ -103,10 +103,8 @@ class requestHandler {
     Client.update({
       tradingName: body.tradingName,
       companyName: body.companyName,
-      cnpj: body.cnpj,
       segment: body.segment,
-      contact: body.contact,
-      status: body.status,}, {
+      contact: body.contact,}, {
         where: {
           id: params.id
         },

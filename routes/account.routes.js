@@ -4,7 +4,8 @@ const router = require('express').Router();
 
 router.post('/register', adminMiddleware, controller.registerSeller);
 router.post('/login', controller.loginSeller);
-router.post('/delete/:id', adminMiddleware, controller.deleteSeller);
+router.put('/:id', adminMiddleware, controller.updateSeller);
+router.delete('/:id', adminMiddleware, controller.deleteSeller);
 module.exports = router;
 /**
  * @swagger

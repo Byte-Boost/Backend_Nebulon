@@ -5,7 +5,8 @@ router.post('/', controller.createCommission);
 router.get('/', controller.getCommissions);
 router.get('/stats', controller.getCommissionStats);
 router.get('/:id', controller.getCommissionById);
-router.put('/:id', controller.updateCommission);
+// Should commissions even be update-able?
+// router.put('/:id', controller.updateCommission);
 router.delete('/:id', controller.deleteCommission);
 
 module.exports = router;
