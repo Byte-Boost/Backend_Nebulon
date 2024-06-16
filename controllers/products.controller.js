@@ -1,4 +1,5 @@
 const { Product } = require("../models");
+const { Op } = require("sequelize");
 class requestHandler {
   // POST
   createProduct = (req, res) => {
@@ -6,8 +7,7 @@ class requestHandler {
     let product = {
       name: body.name,
       description: body.description,
-      percentage: body.percentage,
-      status: body.status || 0,
+      status: body.status && body.status != "0" ? 1 : 0,
     }
     
     Product.create(product).then((response)=>{
@@ -19,14 +19,39 @@ class requestHandler {
   };
   // GET
   getProducts = (req, res) => {
-    Product.findAll()
+    let { query } = req;
+    // Filter options
+    let queryStatus = query.status;
+    let startsWith = query.startsWith;
+    let sortMethod = query.sortBy || "ID";
+    let page = query.page ? parseInt(query.page) : 1;
+    let limit = query.limit ? parseInt(query.limit) : null;
+    
+    function sortBy(sortMethod){
+      switch (sortMethod.toUpperCase()) {
+        case "STATUS":
+          return [['status', 'ASC']];
+        case "NAME":
+          return [['name', 'ASC']];
+        default:
+          return [['id', 'ASC']];
+      }
+    }
+    // Query options
+    let findOpt = {
+      where: {
+        // Selected Filter ? Proper logic : Default Filter
+        status: queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : {[Op.ne]: null},
+        name: startsWith ? {[Op.regexp]: `^${startsWith}`} : {[Op.ne]: null},
+      },
+      order: sortBy(sortMethod),
+      offset: (page - 1) * limit,
+      limit: limit
+    };
+
+    // Query & response
+    Product.findAll(findOpt)
       .then((products) => {
-        let { query } = req;
-        let queryStatus = query.status 
-        if (queryStatus) {
-          let status = queryStatus == "new" ? 0 : queryStatus == "old" ? 1 : undefined
-          products = products.filter(product => product.status == status);
-        }
         res.status(200).send(products);
       })
       .catch((err) => {
@@ -51,8 +76,7 @@ class requestHandler {
     Product.update({
       name: body.name,
       description: body.description,
-      percentage: body.percentage,
-      status: body.status,}, {
+      }, {
         where: {
           id: params.id
         },

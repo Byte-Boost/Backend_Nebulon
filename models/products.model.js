@@ -14,10 +14,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    percentage: {
-      type: DataTypes.FLOAT,
-      allowNull: false,
-    },
     status: {
       type: DataTypes.INTEGER,
       allowNull: false,
